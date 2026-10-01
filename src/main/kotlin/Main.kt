@@ -1,7 +1,8 @@
 fun main() {
-    val exercise = ExerciseLoader.loadFromResource(
-        "exercise.json"
-    )
+    val repository: ExerciseRepository =
+        LocalExerciseRepository()
+
+    val exercise = repository.getExercise()
 
     val game = SentenceGame(exercise)
 
