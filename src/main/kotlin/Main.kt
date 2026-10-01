@@ -13,21 +13,14 @@ fun main() {
         scrambledOrder = listOf(4, 1, 6, 3, 2, 5)
     )
 
-    if (!SentenceExerciseValidator.validate(exercise)) {
-        println("Invalid exercise.")
-        return
-    }
+    val game = SentenceGame(exercise)
 
     println("Sentence Builder")
     println()
     println("Reorder the words into a correct sentence.")
     println()
 
-    val scrambledWords = exercise.scrambledOrder.map { id ->
-        exercise.words.first { it.id == id }
-    }
-
-    scrambledWords.forEachIndexed { index, word ->
+    game.scrambledWords.forEachIndexed { index, word ->
         println("${index + 1}. ${word.text}")
     }
 
@@ -40,44 +33,22 @@ fun main() {
         .split(" ")
         .mapNotNull { it.toIntOrNull() }
 
-    if (selectedIndexes.size != scrambledWords.size) {
-        println("Invalid answer. Enter each word number exactly once.")
-        return
-    }
+    try {
+        val sentence = game.buildSentence(selectedIndexes)
 
-    if (selectedIndexes.any { it !in 1..scrambledWords.size }) {
-        println("Invalid answer. One or more numbers are out of range.")
-        return
-    }
+        println()
+        println("Your sentence:")
+        println(sentence)
+        println()
 
-    if (selectedIndexes.toSet().size != scrambledWords.size) {
-        println("Invalid answer. Do not repeat word numbers.")
-        return
-    }
-
-    val selectedWordIds = selectedIndexes.map { index ->
-        scrambledWords[index - 1].id
-    }
-
-    val selectedSentence = selectedIndexes
-        .map { index -> scrambledWords[index - 1].text }
-        .joinToString(" ")
-
-    println()
-    println("Your sentence:")
-    println(selectedSentence)
-
-    println()
-
-    if (
-        SentenceValidator().isCorrect(
-            userOrder = selectedWordIds,
-            correctOrder = exercise.correctOrder
-        )
-    ) {
-        println("Correct!")
-    } else {
-        println("Incorrect.")
-        println("Correct sentence: ${exercise.sentence}")
+        if (game.isCorrect(selectedIndexes)) {
+            println("Correct!")
+        } else {
+            println("Incorrect.")
+            println("Correct sentence: ${exercise.sentence}")
+        }
+    } catch (e: IllegalArgumentException) {
+        println()
+        println("Invalid answer: ${e.message}")
     }
 }
