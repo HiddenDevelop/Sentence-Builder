@@ -46,7 +46,7 @@ fun playRound(exercise: SentenceExercise): Boolean {
     val state = SentenceGameState(exercise)
 
     println("Reorder the words into a correct sentence.")
-    println("Select one word at a time.")
+    println("Commands: u = undo, r = reset")
     println()
 
     while (!state.isComplete) {
@@ -64,20 +64,37 @@ fun playRound(exercise: SentenceExercise): Boolean {
             println()
         }
 
-        print("Choose a word number: ")
+        print("Choose a word number, or command: ")
 
         val input = readlnOrNull()
             ?.trim()
-            ?.toIntOrNull()
+            ?.lowercase()
+            .orEmpty()
 
-        if (input == null) {
-            println("Please enter a number.")
+        when (input) {
+            "u", "undo" -> {
+                state.undoLastSelection()
+                println()
+                continue
+            }
+
+            "r", "reset" -> {
+                state.reset()
+                println()
+                continue
+            }
+        }
+
+        val number = input.toIntOrNull()
+
+        if (number == null) {
+            println("Please enter a word number, 'u', or 'r'.")
             println()
             continue
         }
 
         try {
-            state.selectWord(input - 1)
+            state.selectWord(number - 1)
         } catch (e: IllegalArgumentException) {
             println(e.message)
         }

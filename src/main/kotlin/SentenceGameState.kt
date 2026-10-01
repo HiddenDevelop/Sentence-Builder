@@ -34,6 +34,18 @@ class SentenceGameState(
         available.add(word)
     }
 
+    val canUndo: Boolean
+    get() = selected.isNotEmpty()
+
+    fun undoLastSelection() {
+        if (selected.isEmpty()) {
+            return
+        }
+
+        val word = selected.removeAt(selected.lastIndex)
+        available.add(word)
+    }
+
     fun reset() {
         available.clear()
         available.addAll(game.scrambledWords)
@@ -53,4 +65,6 @@ class SentenceGameState(
         return selected.map { it.id } ==
             game.exercise.correctOrder
     }
+
+    
 }

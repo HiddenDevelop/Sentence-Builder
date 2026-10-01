@@ -141,4 +141,43 @@ class SentenceGameStateTest {
             state.selectWord(100)
         }
     }
+    @Test
+    fun `undo removes last selected word`() {
+        val state = createState()
+
+        state.selectWord(1) // She
+        state.selectWord(2) // goes
+
+        state.undoLastSelection()
+
+        assertEquals(
+            listOf("She"),
+            state.selectedWords.map { it.text }
+        )
+
+        assertTrue(
+            state.availableWords.any { it.text == "goes" }
+        )
+    }
+
+    @Test
+    fun `undo on empty selection does nothing`() {
+        val state = createState()
+
+        state.undoLastSelection()
+
+        assertTrue(state.selectedWords.isEmpty())
+        assertEquals(4, state.availableWords.size)
+    }
+
+    @Test
+    fun `can undo reflects selected state`() {
+        val state = createState()
+
+        assertFalse(state.canUndo)
+
+        state.selectWord(1)
+
+        assertTrue(state.canUndo)
+    }
 }
