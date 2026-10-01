@@ -1,13 +1,50 @@
 fun main() {
     val repository: ExerciseRepository =
-        LocalExerciseRepository()
-
-    val exercise = repository.getExercise()
-
-    val game = SentenceGame(exercise)
+        InMemoryExerciseRepository(
+            DemoExercises.all()
+        )
 
     println("Sentence Builder")
+    println("================")
     println()
+
+    var score = 0
+    var roundsPlayed = 0
+    var keepPlaying = true
+
+    while (keepPlaying) {
+        val exercise = repository.getExercise()
+
+        val correct = playRound(exercise)
+
+        roundsPlayed++
+
+        if (correct) {
+            score++
+        }
+
+        println()
+        println("Score: $score / $roundsPlayed")
+        println()
+
+        print("Play another sentence? (y/n): ")
+
+        val answer = readlnOrNull()
+            ?.trim()
+            ?.lowercase()
+
+        keepPlaying = answer == "y" || answer == "yes"
+
+        println()
+    }
+
+    println("Final score: $score / $roundsPlayed")
+    println("Thanks for playing!")
+}
+
+fun playRound(exercise: SentenceExercise): Boolean {
+    val game = SentenceGame(exercise)
+
     println("Reorder the words into a correct sentence.")
     println()
 
@@ -24,7 +61,7 @@ fun main() {
         .split("\\s+".toRegex())
         .mapNotNull { it.toIntOrNull() }
 
-    try {
+    return try {
         val sentence = game.buildSentence(selectedIndexes)
 
         println()
@@ -34,12 +71,15 @@ fun main() {
 
         if (game.isCorrect(selectedIndexes)) {
             println("Correct!")
+            true
         } else {
             println("Incorrect.")
             println("Correct sentence: ${exercise.sentence}")
+            false
         }
     } catch (e: IllegalArgumentException) {
         println()
         println("Invalid answer: ${e.message}")
+        false
     }
 }
