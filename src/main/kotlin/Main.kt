@@ -43,43 +43,58 @@ fun main() {
 }
 
 fun playRound(exercise: SentenceExercise): Boolean {
-    val game = SentenceGame(exercise)
+    val state = SentenceGameState(exercise)
 
     println("Reorder the words into a correct sentence.")
+    println("Select one word at a time.")
     println()
 
-    game.scrambledWords.forEachIndexed { index, word ->
-        println("${index + 1}. ${word.text}")
+    while (!state.isComplete) {
+        println("Available words:")
+
+        state.availableWords.forEachIndexed { index, word ->
+            println("${index + 1}. ${word.text}")
+        }
+
+        println()
+
+        if (state.selectedWords.isNotEmpty()) {
+            println("Current sentence:")
+            println(state.currentSentence())
+            println()
+        }
+
+        print("Choose a word number: ")
+
+        val input = readlnOrNull()
+            ?.trim()
+            ?.toIntOrNull()
+
+        if (input == null) {
+            println("Please enter a number.")
+            println()
+            continue
+        }
+
+        try {
+            state.selectWord(input - 1)
+        } catch (e: IllegalArgumentException) {
+            println(e.message)
+        }
+
+        println()
     }
 
+    println("Your sentence:")
+    println(state.currentSentence())
     println()
-    print("Enter the word numbers in the correct order: ")
 
-    val input = readlnOrNull()?.trim().orEmpty()
-
-    val selectedIndexes = input
-        .split("\\s+".toRegex())
-        .mapNotNull { it.toIntOrNull() }
-
-    return try {
-        val sentence = game.buildSentence(selectedIndexes)
-
-        println()
-        println("Your sentence:")
-        println(sentence)
-        println()
-
-        if (game.isCorrect(selectedIndexes)) {
-            println("Correct!")
-            true
-        } else {
-            println("Incorrect.")
-            println("Correct sentence: ${exercise.sentence}")
-            false
-        }
-    } catch (e: IllegalArgumentException) {
-        println()
-        println("Invalid answer: ${e.message}")
+    return if (state.isCorrect()) {
+        println("Correct!")
+        true
+    } else {
+        println("Incorrect.")
+        println("Correct sentence: ${exercise.sentence}")
         false
     }
 }
