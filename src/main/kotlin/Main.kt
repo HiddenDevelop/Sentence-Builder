@@ -1,16 +1,6 @@
 fun main() {
-    val exercise = SentenceExercise(
-        sentence = "She goes to school every morning.",
-        words = listOf(
-            SentenceWord(1, "She"),
-            SentenceWord(2, "goes"),
-            SentenceWord(3, "to"),
-            SentenceWord(4, "school"),
-            SentenceWord(5, "every"),
-            SentenceWord(6, "morning.")
-        ),
-        correctOrder = listOf(1, 2, 3, 4, 5, 6),
-        scrambledOrder = listOf(4, 1, 6, 3, 2, 5)
+    val exercise = ExerciseLoader.loadFromResource(
+        "exercise.json"
     )
 
     val game = SentenceGame(exercise)
@@ -30,7 +20,7 @@ fun main() {
     val input = readlnOrNull()?.trim().orEmpty()
 
     val selectedIndexes = input
-        .split(" ")
+        .split("\\s+".toRegex())
         .mapNotNull { it.toIntOrNull() }
 
     try {
